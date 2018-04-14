@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import styled, { injectGlobal } from 'styled-components';
 import YTPlayer from 'yt-player';
 import axios from 'axios';
-
+import { user, oauthToken } from './auth';
 // import dotenv from 'dotenv';
 
 // dotenv.load();
@@ -22,7 +22,22 @@ document.getElementById('playlist').onclick = createPlaylist;
           }
         };
 
-      axios.get(`https://developers.google.com/apis-explorer/#p/youtube/v3/youtube.playlists.insert?part=${part.snippet},${part.status}`)
+    const axOptions = {
+      mode: 'no-cors',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Access-Control-Allow-Origin': '*',
+      },
+      withCredentials: true,
+      credentials: 'same-origin',
+      crossDomain: true
+    };
+
+
+    const createPlaylistUrl = 'https://developers.google.com/apis-explorer/#p/youtube/v3/youtube.playlists.insert?part=${part.snippet},${part.status}';
+    axios.get(createPlaylistUrl)
       .then((res) => {
         console.log(res);
 

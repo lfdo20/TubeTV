@@ -1,75 +1,82 @@
 var GoogleAuth;
-    var SCOPE = 'https://www.googleapis.com/auth/youtube';
-    function handleClientLoad() {
-      // Load the API's client and auth2 modules.
-      // Call the initClient function after the modules load.
-      gapi.load('client:auth2', initClient);
-    }
+let userAuth;
+let oauthToken;
 
-    function initClient() {
-      // Retrieve the discovery document for version 3 of Google Drive API.
-      // In practice, your app can retrieve one or more discovery documents.
-      //var discoveryUrl = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
+var SCOPE = 'https://www.googleapis.com/auth/youtube';
+function handleClientLoad() {
+  // Load the API's client and auth2 modules.
+  // Call the initClient function after the modules load.
+  gapi.load('client:auth2', initClient);
+}
 
-      // Initialize the gapi.client object, which app uses to make API requests.
-      // Get API key and client ID from API Console.
-      // 'scope' field specifies space-delimited list of access scopes.
-      gapi.client.init({
-        'apiKey': 'h1BqQOOOTRE6LaNHJsPAYWE3',
-        //'discoveryDocs': [discoveryUrl],
-        'clientId': '549389071378-mb3f6jvqchsndplttaljmeab0b2n16m9.apps.googleusercontent.com',
-        'scope': SCOPE
-      }).then(function () {
-        GoogleAuth = gapi.auth2.getAuthInstance();
+function initClient() {
+  // Retrieve the discovery document for version 3 of Google Drive API.
+  // In practice, your app can retrieve one or more discovery documents.
+  //var discoveryUrl = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
 
-        // Listen for sign-in state changes.
-        GoogleAuth.isSignedIn.listen(updateSigninStatus);
+  // Initialize the gapi.client object, which app uses to make API requests.
+  // Get API key and client ID from API Console.
+  // 'scope' field specifies space-delimited list of access scopes.
+  gapi.client.init({
+    'apiKey': 'h1BqQOOOTRE6LaNHJsPAYWE3',
+    //'discoveryDocs': [discoveryUrl],
+    'clientId': '549389071378-mb3f6jvqchsndplttaljmeab0b2n16m9.apps.googleusercontent.com',
+    'scope': SCOPE
+  }).then(function () {
+    GoogleAuth = gapi.auth2.getAuthInstance();
+    userAuth = gapi.auth2.getAuthInstance().currentUser.get();
+    oauthToken = userAuth.getAuthResponse().access_token;
+    console.log(userAuth, oauthToken);
 
-        // Handle initial sign-in state. (Determine if user is already signed in.)
-        var user = GoogleAuth.currentUser.get();
-        setSigninStatus();
+    // Listen for sign-in state changes.
+    GoogleAuth.isSignedIn.listen(updateSigninStatus);
 
-        // Call handleAuthClick function when user clicks on
-        //      "Sign In/Authorize" button.
-        $('#sign-in-or-out-button').click(function () {
-          handleAuthClick();
-        });
-        // $('#revoke-access-button').click(function () {
-        //   revokeAccess();
-        // });
-      });
-    }
+    // Handle initial sign-in state. (Determine if user is already signed in.)
+    var user = GoogleAuth.currentUser.get();
 
-    function handleAuthClick() {
-      if (GoogleAuth.isSignedIn.get()) {
-        // User is authorized and has clicked 'Sign out' button.
-        GoogleAuth.signOut();
-      } else {
-        // User is not signed in. Start Google auth flow.
-        GoogleAuth.signIn();
-      }
-    }
+    setSigninStatus();
 
-    function revokeAccess() {
-      GoogleAuth.disconnect();
-    }
+    // Call handleAuthClick function when user clicks on
+    //      "Sign In/Authorize" button.
+    $('#sign-in-or-out-button').click(function () {
+      handleAuthClick();
+    });
+    // $('#revoke-access-button').click(function () {
+    //   revokeAccess();
+    // });
+  });
+}
 
-    function setSigninStatus(isSignedIn) {
-      var user = GoogleAuth.currentUser.get();
-      var isAuthorized = user.hasGrantedScopes(SCOPE);
-      if (isAuthorized) {
-        $('#sign-in-or-out-button').html('Sign out');
-        //$('#revoke-access-button').css('display', 'inline-block');
-        $('#auth-status').html('You are currently signed in and have granted ' +
-          'access to this app.');
-      } else {
-        $('#sign-in-or-out-button').html('Sign In/Authorize');
-       //$('#revoke-access-button').css('display', 'none');
-        $('#auth-status').html('You have not authorized this app or you are ' +
-          'signed out.');
-      }
-    }
+function handleAuthClick() {
+  if (GoogleAuth.isSignedIn.get()) {
+    // User is authorized and has clicked 'Sign out' button.
+    GoogleAuth.signOut();
+  } else {
+    // User is not signed in. Start Google auth flow.
+    GoogleAuth.signIn();
+  }
+}
 
-    function updateSigninStatus(isSignedIn) {
-      setSigninStatus();
-    }
+function revokeAccess() {
+  GoogleAuth.disconnect();
+}
+
+function setSigninStatus(isSignedIn) {
+  var user = GoogleAuth.currentUser.get();
+  var isAuthorized = user.hasGrantedScopes(SCOPE);
+  if (isAuthorized) {
+    $('#sign-in-or-out-button').html('Sign out');
+    //$('#revoke-access-button').css('display', 'inline-block');
+    $('#auth-status').html('You are currently signed in and have granted ' +
+      'access to this app.');
+  } else {
+    $('#sign-in-or-out-button').html('Sign In/Authorize');
+    //$('#revoke-access-button').css('display', 'none');
+    $('#auth-status').html('You have not authorized this app or you are ' +
+      'signed out.');
+  }
+}
+
+function updateSigninStatus(isSignedIn) {
+  setSigninStatus();
+}

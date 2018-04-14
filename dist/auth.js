@@ -1,6 +1,9 @@
 'use strict';
 
 var GoogleAuth;
+var userAuth = void 0;
+var oauthToken = void 0;
+
 var SCOPE = 'https://www.googleapis.com/auth/youtube';
 function handleClientLoad() {
   // Load the API's client and auth2 modules.
@@ -23,12 +26,16 @@ function initClient() {
     'scope': SCOPE
   }).then(function () {
     GoogleAuth = gapi.auth2.getAuthInstance();
+    userAuth = gapi.auth2.getAuthInstance().currentUser.get();
+    oauthToken = userAuth.getAuthResponse().access_token;
+    console.log(userAuth, oauthToken);
 
     // Listen for sign-in state changes.
     GoogleAuth.isSignedIn.listen(updateSigninStatus);
 
     // Handle initial sign-in state. (Determine if user is already signed in.)
     var user = GoogleAuth.currentUser.get();
+
     setSigninStatus();
 
     // Call handleAuthClick function when user clicks on
