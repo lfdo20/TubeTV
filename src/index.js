@@ -37,7 +37,7 @@ document.getElementById('playlist').onclick = createPlaylist;
 
 
     const createPlaylistUrl = 'https://developers.google.com/apis-explorer/#p/youtube/v3/youtube.playlists.insert?part=${part.snippet},${part.status}';
-    axios.get(createPlaylistUrl)
+    axios.get(createPlaylistUrl, axOptions)
       .then((res) => {
         console.log(res);
 
