@@ -18,7 +18,15 @@ app.get('/', function (req, res) {
   res.sendFile(_path2.default.join(__dirname, '../dist/index.html'));
 });
 
-var port = 3000;
-app.listen(port, function () {
-  console.log('Server started on port ' + port);
+var port = process.env.PORT || 8080;
+
+var server = app.listen(port, function () {
+  var host = server.address().address;
+  var por = server.address().port;
+
+  console.log('Web server started at http://' + host + ':' + por);
 });
+
+// app.listen(port, () => {
+//   console.log(`Server started on port ${port}`);
+// });
