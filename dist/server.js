@@ -18,12 +18,6 @@ var app = (0, _express2.default)();
 
 app.use(_express2.default.static('dist'));
 
-app.use((0, _cors2.default)({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
-app.options('*', (0, _cors2.default)());
-
 app.get('/', function (req, res) {
   res.sendFile(_path2.default.join(__dirname, '../dist/index.html'));
 });
@@ -36,7 +30,3 @@ var server = app.listen(port, function () {
 
   console.log('Web server started at http://' + host + ':' + por);
 });
-
-// app.listen(port, () => {
-//   console.log(`Server started on port ${port}`);
-// });

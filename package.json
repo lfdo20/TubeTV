@@ -7,7 +7,8 @@
     "start": "webpack-dev-server --config ./webpack.config.js --mode development",
     "babel": "babel ./src/server.js -o dist/server.js && babel ./src/auth.js -o dist/auth.js",
     "postinstall": "webpack --config ./webpack.config.js --mode production --optimize-minimize && npm run babel",
-    "server": "npm run postinstall && node ./dist/server.js",
+    "devinstall": "webpack --config ./webpack.config.js --mode development && npm run babel",
+    "server": "npm run devinstall && node ./dist/server.js",
     "test": "jest"
   },
   "repository": {
@@ -26,13 +27,15 @@
   },
   "homepage": "https://github.com/lfdo20/TubeTV#readme",
   "dependencies": {
-    "axios": "^0.18.0",
     "babel-cli": "^6.26.0",
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "googleapis": "^28.1.0",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
+    "react-redux": "^5.0.7",
+    "recompose": "^0.26.0",
+    "redux": "^3.7.2",
     "styled-components": "^3.2.5",
     "yt-player": "^2.5.3"
   },

@@ -1,82 +1,71 @@
 var GoogleAuth;
 let userAuth;
 let oauthToken;
+let googleApiClientReady;
 
-var SCOPE = 'https://www.googleapis.com/auth/youtube';
-function handleClientLoad() {
-  // Load the API's client and auth2 modules.
-  // Call the initClient function after the modules load.
-  gapi.load('client:auth2', initClient);
-}
+// The client ID is obtained from the Google Developers Console
+// at https://console.developers.google.com/.
+// If you run this code from a server other than http://localhost,
+// you need to register your own client ID.
+var OAUTH2_CLIENT_ID = '549389071378-mb3f6jvqchsndplttaljmeab0b2n16m9.apps.googleusercontent.com';
+var OAUTH2_SCOPES = [
+  'https://www.googleapis.com/auth/youtube'
+];
 
-function initClient() {
-  // Retrieve the discovery document for version 3 of Google Drive API.
-  // In practice, your app can retrieve one or more discovery documents.
-  //var discoveryUrl = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
-
-  // Initialize the gapi.client object, which app uses to make API requests.
-  // Get API key and client ID from API Console.
-  // 'scope' field specifies space-delimited list of access scopes.
-  gapi.client.init({
-    'apiKey': 'h1BqQOOOTRE6LaNHJsPAYWE3',
-    //'discoveryDocs': [discoveryUrl],
-    'clientId': '549389071378-mb3f6jvqchsndplttaljmeab0b2n16m9.apps.googleusercontent.com',
-    'scope': SCOPE
-  }).then(function () {
-    GoogleAuth = gapi.auth2.getAuthInstance();
-    userAuth = gapi.auth2.getAuthInstance().currentUser.get();
-    oauthToken = userAuth.getAuthResponse().access_token;
-    console.log(userAuth, oauthToken);
-
-    // Listen for sign-in state changes.
-    GoogleAuth.isSignedIn.listen(updateSigninStatus);
-
-    // Handle initial sign-in state. (Determine if user is already signed in.)
-    var user = GoogleAuth.currentUser.get();
-
-    setSigninStatus();
-
-    // Call handleAuthClick function when user clicks on
-    //      "Sign In/Authorize" button.
-    $('#sign-in-or-out-button').click(function () {
-      handleAuthClick();
-    });
-    // $('#revoke-access-button').click(function () {
-    //   revokeAccess();
-    // });
+// Upon loading, the Google APIs JS client automatically invokes this callback.
+googleApiClientReady = function () {
+  gapi.auth.init(function () {
+    window.setTimeout(checkAuth(), 1);
   });
 }
 
-function handleAuthClick() {
-  if (GoogleAuth.isSignedIn.get()) {
-    // User is authorized and has clicked 'Sign out' button.
-    GoogleAuth.signOut();
+// Attempt the immediate OAuth 2.0 client flow as soon as the page loads.
+// If the currently logged-in Google Account has previously authorized
+// the client specified as the OAUTH2_CLIENT_ID, then the authorization
+// succeeds with no user intervention. Otherwise, it fails and the
+// user interface that prompts for authorization needs to display.
+function checkAuth() {
+  gapi.auth.authorize({
+    client_id: OAUTH2_CLIENT_ID,
+    scope: OAUTH2_SCOPES,
+    immediate: true
+  }, handleAuthResult);
+}
+const loginbutton = document.getElementById('sign-in-or-out-button')
+loginbutton.addEventListener("click",
+function (e) {
+  console.log('foi???');
+  if (loginbutton.getAttribute('logged') === 'off' ) {
+    checkAuth();
   } else {
-    // User is not signed in. Start Google auth flow.
-    GoogleAuth.signIn();
+    handleAuthResult();
   }
-}
+  });
 
-function revokeAccess() {
-  GoogleAuth.disconnect();
-}
-
-function setSigninStatus(isSignedIn) {
-  var user = GoogleAuth.currentUser.get();
-  var isAuthorized = user.hasGrantedScopes(SCOPE);
-  if (isAuthorized) {
+// Handle the result of a gapi.auth.authorize() call.
+function handleAuthResult(authResult) {
+  if (authResult && !authResult.error) {
+    // Authorization was successful. Hide authorization prompts and show
+    // content that should be visible after authorization succeeds.
     $('#sign-in-or-out-button').html('Sign out');
-    //$('#revoke-access-button').css('display', 'inline-block');
-    $('#auth-status').html('You are currently signed in and have granted ' +
-      'access to this app.');
+    $('#auth-status').html('You are currently signed in and have granted ' + 'access to this app.');
+    gapi.auth.signOut();
+    loginbutton.setAttribute("logged", "on")
+    loadAPIClientInterfaces();
   } else {
+    // Make the #login-link clickable. Attempt a non-immediate OAuth 2.0
+    // client flow. The current function is called when that flow completes.
     $('#sign-in-or-out-button').html('Sign In/Authorize');
-    //$('#revoke-access-button').css('display', 'none');
     $('#auth-status').html('You have not authorized this app or you are ' +
       'signed out.');
+        console.log('foi in');
+        loginbutton.setAttribute("logged", "off")
   }
 }
 
-function updateSigninStatus(isSignedIn) {
-  setSigninStatus();
+function loadAPIClientInterfaces() {
+  gapi.client.load('youtube', 'v3', function () {
+    //handleAPILoaded();
+    $('#playlist').attr('disabled', false);
+  });
 }
